@@ -2,10 +2,13 @@
 .post
   .post__content
     div
-      strong Название:
+      strong Номер поста: 
+      span {{ post.id }}
+    div
+      strong Название: 
       span {{ post.title }}
     div
-      strong Описание:
+      strong Описание: 
       span {{ post.body }}
   .post__btn
     MyButton(@click="$emit('remove', post)") Удалить

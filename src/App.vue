@@ -1,13 +1,16 @@
 <template lang="pug">
 .app
   h1 Страница с постами
-  MyButton.create-btn(@click="showDialog") Создать пост
+  .app__btns
+    MyButton.create-btn(@click="showDialog") Создать пост
+    MySelect(v-model="selectedSort", :options="sortOptions")
   MyDialog(v-model:show="dialogVisible")
     PostForm(@create="createPost")
-  PostList(:posts="posts", @remove="removePost", v-if="!isPostsLoading")
+  PostList(:posts="sortedPosts", @remove="removePost", v-if="!isPostsLoading")
   .posts__loading(v-else)
     h4 Идёт загрузка...
     MyLoading
+  .h2 {{ selectedSort }}
 </template>
 
 <script>
@@ -30,11 +33,17 @@ export default {
       ],
       dialogVisible: false,
       isPostsLoading: true,
+      selectedSort: "",
+      sortOptions: [
+        { value: "title", name: "По названию" },
+        { value: "body", name: "По описанию" },
+        { value: "id", name: "По номеру" },
+      ],
     };
   },
   methods: {
     createPost(post) {
-      this.posts.push(post);
+      this.posts.unshift(post);
       this.dialogVisible = false;
     },
     removePost(currentPost) {
@@ -57,6 +66,23 @@ export default {
       }
     },
   },
+  computed: {
+    sortedPosts() {
+      if (this.selectedSort === "id") {
+        // сортировка для чисел
+        return [...this.posts].sort((post1, post2) => {
+          return post1[this.selectedSort] - post2[this.selectedSort];
+        });
+      }
+      // сортировка для строк
+      return [...this.posts].sort((post1, post2) => {
+        return post1[this.selectedSort]?.localeCompare(
+          post2[this.selectedSort]
+        );
+      });
+    },
+  },
+  watch: {},
   mounted() {
     this.fetchPosts();
   },
@@ -74,10 +100,15 @@ export default {
   padding: 20px;
 }
 
-.create-btn {
+.app__btns {
   margin: 10px 0;
-  font-weight: 600;
-  width: 25%;
+  display: flex;
+  justify-content: space-between;
+
+  .create-btn {
+    font-weight: 600;
+    width: 25%;
+  }
 }
 
 .posts__loading {

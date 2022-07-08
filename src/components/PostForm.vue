@@ -1,5 +1,5 @@
 <template lang="pug">
-form(@submit.prevent)
+form(@submit.prevent, @keydown.enter="createPost")
   h4 Создать пост
   MyInput.form-input(placeholder="Название поста", v-model="post.title")
   MyInput.form-input(placeholder="Описание поста", v-model="post.body")
@@ -25,7 +25,6 @@ export default {
         body: "",
       };
     },
-
   },
 };
 </script>
