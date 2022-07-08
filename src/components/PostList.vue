@@ -1,7 +1,8 @@
 <template lang="pug">
 .posts
-  .posts__list(v-if="posts.length > 0")
-    h4 Список постов
+  h4(v-if="posts.length > 0") Список постов
+  h4(v-else, style="color: red") Список постов пуст
+  .posts__list
     transition-group(name="posts-list")
       PostItem(
         v-for="post in posts",
@@ -9,8 +10,6 @@
         :post="post",
         @remove="$emit('remove', post)"
       )
-  .posts__list(v-else)
-    h4(style="color: red") Список постов пуст
 </template>
 
 <script>

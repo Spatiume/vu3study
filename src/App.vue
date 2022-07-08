@@ -1,12 +1,17 @@
 <template lang="pug">
 .app
   h1 Страница с постами
+  MyInput.input__search(placeholder="Поиск...", v-model="serchQuery")
   .app__btns
     MyButton.create-btn(@click="showDialog") Создать пост
     MySelect(v-model="selectedSort", :options="sortOptions")
   MyDialog(v-model:show="dialogVisible")
     PostForm(@create="createPost")
-  PostList(:posts="sortedPosts", @remove="removePost", v-if="!isPostsLoading")
+  PostList(
+    :posts="sortedAndSearchedPosts",
+    @remove="removePost",
+    v-if="!isPostsLoading"
+  )
   .posts__loading(v-else)
     h4 Идёт загрузка...
     MyLoading
@@ -39,7 +44,30 @@ export default {
         { value: "body", name: "По описанию" },
         { value: "id", name: "По номеру" },
       ],
+      serchQuery: "",
+
     };
+  },
+  computed: {
+    sortedPosts() {
+      if (this.selectedSort === "id") {
+        // сортировка для чисел
+        return [...this.posts].sort((post1, post2) => {
+          return post1[this.selectedSort] - post2[this.selectedSort];
+        });
+      }
+      // сортировка для строк
+      return [...this.posts].sort((post1, post2) => {
+        return post1[this.selectedSort]?.localeCompare(
+          post2[this.selectedSort]
+        );
+      });
+    },
+    sortedAndSearchedPosts() {
+      return this.sortedPosts.filter((post) =>
+        post.title.toLowerCase().includes(this.serchQuery.toLowerCase())
+      );
+    },
   },
   methods: {
     createPost(post) {
@@ -64,22 +92,6 @@ export default {
       } finally {
         this.isPostsLoading = false;
       }
-    },
-  },
-  computed: {
-    sortedPosts() {
-      if (this.selectedSort === "id") {
-        // сортировка для чисел
-        return [...this.posts].sort((post1, post2) => {
-          return post1[this.selectedSort] - post2[this.selectedSort];
-        });
-      }
-      // сортировка для строк
-      return [...this.posts].sort((post1, post2) => {
-        return post1[this.selectedSort]?.localeCompare(
-          post2[this.selectedSort]
-        );
-      });
     },
   },
   watch: {},
@@ -109,6 +121,10 @@ export default {
     font-weight: 600;
     width: 25%;
   }
+}
+
+.input__search {
+  margin: 10px 0;
 }
 
 .posts__loading {
