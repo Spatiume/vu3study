@@ -4,7 +4,10 @@
   MyButton.create-btn(@click="showDialog") Создать пост
   MyDialog(v-model:show="dialogVisible")
     PostForm(@create="createPost")
-  PostList(:posts="posts", @remove="removePost")
+  PostList(:posts="posts", @remove="removePost", v-if="!isPostsLoading")
+  .posts__loading(v-else)
+    h4 Идёт загрузка...
+    MyLoading
 </template>
 
 <script>
@@ -26,6 +29,7 @@ export default {
         { id: 4, title: "Javascript 3", body: "Описание поста 4" },
       ],
       dialogVisible: false,
+      isPostsLoading: true,
     };
   },
   methods: {
@@ -41,12 +45,15 @@ export default {
     },
     async fetchPosts() {
       try {
+        this.isPostsLoading = true;
         const { data } = await axios.get(
           "https://jsonplaceholder.typicode.com/posts?_limit=10"
         );
         this.posts = data;
       } catch (error) {
         alert("Ошибка");
+      } finally {
+        this.isPostsLoading = false;
       }
     },
   },
@@ -71,5 +78,12 @@ export default {
   margin: 10px 0;
   font-weight: 600;
   width: 25%;
+}
+
+.posts__loading {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 </style>
