@@ -1,7 +1,5 @@
 export default {
   mounted(el, binding) {
-    console.log(el, binding);
-
     // Следим за observer
     const options = {
       rootMargin: "0px",

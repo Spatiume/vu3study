@@ -1,22 +1,14 @@
 <template lang="pug">
-.dialog(v-if="show", @click="hideDialog" @keydown.escape="hideDialog")
+.dialog(v-if="show", @click="hideDialog", @keydown.escape="hideDialog")
   .dialog__content(@click.stop)
     slot
 </template>
 <script>
+import toggleMixin from "./../mixins/toggleMixin";
+
 export default {
   name: "MyDialog",
-  props: {
-    show: {
-      type: Boolean,
-      default: false,
-    },
-  },
-  methods: {
-    hideDialog() {
-      this.$emit("update:show", false);
-    },
-  },
+  mixins: [toggleMixin],
 };
 </script>
 <style lang="scss">

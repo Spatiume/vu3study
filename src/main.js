@@ -13,6 +13,5 @@ components.forEach(component => {
 directives.forEach(directive => {
   app.directive(directive.name, directive)
 })
-console.log(directives)
 
 app.use(router).mount('#app')
