@@ -2,16 +2,17 @@
 .post
   .post__content
     div
-      strong Номер поста: 
+      strong Номер поста:
       span {{ post.id }}
     div
-      strong Название: 
+      strong Название:
       span {{ post.title }}
     div
-      strong Описание: 
+      strong Описание:
       span {{ post.body }}
-  .post__btn
-    MyButton(@click="$emit('remove', post)") Удалить
+  .post__btns
+    MyButton.post__btn(@click="$router.push(`/post/${post.id}`)") Открыть
+    MyButton.post__btn(@click="$emit('remove', post)") Удалить
 </template>
 <script>
 export default {
@@ -23,7 +24,7 @@ export default {
   },
 };
 </script>
-<style lang="scss">
+<style lang="scss" scoped>
 .post {
   padding: 15px;
   border: 3px solid teal;
@@ -31,5 +32,25 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
+}
+
+.post__content {
+  width: 70%;
+}
+
+.post__btns {
+  width: 25%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.post__btn {
+  padding: 5px;
+  margin-top: 5px;
+
+  &:hover {
+    padding: 4px;
+  }
 }
 </style>

@@ -55,6 +55,7 @@ export default {
   align-items: center;
   min-height: 25px;
   margin-left: 25px;
+  cursor: pointer;
 
   &::before {
     content: "";
