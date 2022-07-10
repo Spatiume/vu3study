@@ -1,5 +1,5 @@
 <template lang="pug">
-.dialog(v-if="show", @click="hideDialog")
+.dialog(v-if="show", @click="hideDialog" @keydown.escape="hideDialog")
   .dialog__content(@click.stop)
     slot
 </template>
@@ -14,7 +14,6 @@ export default {
   },
   methods: {
     hideDialog() {
-      console.log('click')
       this.$emit("update:show", false);
     },
   },

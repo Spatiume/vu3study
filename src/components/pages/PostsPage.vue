@@ -24,7 +24,7 @@
     h4 Идёт загрузка...
     MyLoading
   .observer(
-    ref="observer",
+    v-intersection="(loadMorePosts), this.dinamicPage",
     v-show="!isPostsLoading && paginationType == 'dinamic'"
   ) Мы загрузили всё что могли...
   PageList(
@@ -151,6 +151,7 @@ export default {
     },
     async loadMorePosts() {
       this.dinamicPage += 1;
+      if (this.dinamicPage > this.totalPage) return;
       try {
         this.isPostsLoading = true;
         const response = await axios.get(
@@ -186,18 +187,6 @@ export default {
     this.fetchPosts();
 
     // console.log(this.$refs.observer);
-    //Следим за observer
-    const options = {
-      rootMargin: "0px",
-      threshold: 1.0,
-    };
-    const callback = (entries, observer) => {
-      if (entries[0].isIntersecting && this.dinamicPage < this.totalPage) {
-        this.loadMorePosts();
-      }
-    };
-    const observer = new IntersectionObserver(callback, options);
-    observer.observe(this.$refs.observer);
   },
 };
 </script>
