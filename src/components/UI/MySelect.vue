@@ -7,9 +7,7 @@ select(v-model="modelValue", @change="changeOption")
 export default {
   name: "MySelect",
   props: {
-    modelValue: {
-      type: String,
-    },
+    modelValue: [String, Number],
     options: {
       type: Array,
       default: () => [],

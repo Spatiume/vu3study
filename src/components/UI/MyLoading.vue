@@ -28,7 +28,7 @@ export default {
   width: 6px;
   height: 18px;
   border-radius: 20%;
-  background: rgba(81, 81, 81, 0.804);
+  background: teal;
 }
 .lds-spinner div:nth-child(1) {
   transform: rotate(0deg);
