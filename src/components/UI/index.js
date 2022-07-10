@@ -3,6 +3,7 @@ import MyInput from "./MyInput.vue";
 import MyDialog from "./MyDialog.vue";
 import MyLoading from "./MyLoading.vue";
 import MySelect from "./MySelect.vue";
+import MyRadio from "./MyRadio.vue";
 
 
 export default [
@@ -10,5 +11,6 @@ export default [
   MyInput,
   MyDialog,
   MyLoading,
-  MySelect
+  MySelect,
+  MyRadio
 ]

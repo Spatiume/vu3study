@@ -1,29 +1,37 @@
 <template lang="pug">
 .app
-  h1 Страница с постами
+  h1 Страница с постами 
   MyInput.input__search(placeholder="Поиск...", v-model="serchQuery")
   .app__btns
     MyButton.create-btn(@click="showDialog") Создать пост
-    .app__sort.post-limits
-      .sort__title Кол-во постов на странице:
-      MySelect(v-model.number="postsLimitOnPage", :options="postsLimits")
     .app__sort.posts-sort
       .sort__title Сортировать по:
       MySelect(v-model="selectedSort", :options="sortOptions")
+  .app__btns.post-limits
+    MyRadio(
+      :options="paginationTypeOptions",
+      :radioName="paginationType",
+      :radioDefault="paginationType",
+      v-model="paginationType"
+    ) Показывать:
+    .app__sort(v-if="paginationType == 'perpage'")
+      .sort__title Кол-во постов на странице:
+      MySelect(v-model.number="postsLimitOnPage", :options="postsLimits")
   MyDialog(v-model:show="dialogVisible")
     PostForm(@create="createPost")
-  PostList(
-    :posts="sortedAndSearchedPosts",
-    @remove="removePost",
-    v-if="!isPostsLoading"
-  )
-  .posts__loading(v-else)
+  PostList(:posts="sortedAndSearchedPosts", @remove="removePost")
+  .posts__loading(v-if="isPostsLoading")
     h4 Идёт загрузка...
     MyLoading
+  .observer(
+    ref="observer",
+    v-show="!isPostsLoading && paginationType == 'dinamic'"
+  ) Мы загрузили всё что могли...
   PageList(
+    v-show="paginationType == 'perpage'",
     :totalPage="totalPage",
     :currentPage="currentPage",
-    @changePage="changePage"
+    v-model:currentPage="currentPage"
   )
 </template>
 
@@ -66,6 +74,12 @@ export default {
       ],
       currentPage: 1,
       totalPage: 0,
+      dinamicPage: 1,
+      paginationType: "dinamic",
+      paginationTypeOptions: [
+        { value: "dinamic", title: "Динамично" },
+        { value: "perpage", title: "Постранично" },
+      ],
     };
   },
   computed: {
@@ -101,8 +115,8 @@ export default {
     showDialog() {
       this.dialogVisible = true;
     },
-    async fetchNextPost(currentPost) {
-      let nextPost = this.posts[this.posts.length - 1].id + 1;
+    async fetchNextPost() {
+      const nextPost = this.posts[this.posts.length - 1].id + 1;
       try {
         const { data } = await axios.get(
           `https://jsonplaceholder.typicode.com/posts/${nextPost}`
@@ -128,14 +142,36 @@ export default {
           response.headers["x-total-count"] / this.postsLimitOnPage
         );
         this.posts = response.data;
+        this.dinamicPage = this.currentPage;
       } catch (error) {
         alert("Ошибка");
       } finally {
         this.isPostsLoading = false;
       }
     },
-    changePage(newPage) {
-      this.currentPage = newPage;
+    async loadMorePosts() {
+      this.dinamicPage += 1;
+      console.log(this.dinamicPage);
+      try {
+        this.isPostsLoading = true;
+        const response = await axios.get(
+          "https://jsonplaceholder.typicode.com/posts",
+          {
+            params: {
+              _page: this.dinamicPage,
+              _limit: this.postsLimitOnPage,
+            },
+          }
+        );
+        this.totalPage = Math.ceil(
+          response.headers["x-total-count"] / this.postsLimitOnPage
+        );
+        this.posts = [...this.posts, ...response.data];
+      } catch (error) {
+        alert("Ошибка");
+      } finally {
+        this.isPostsLoading = false;
+      }
     },
   },
   watch: {
@@ -149,6 +185,20 @@ export default {
   },
   mounted() {
     this.fetchPosts();
+
+    console.log(this.$refs.observer);
+    //Следим за observer
+    const options = {
+      rootMargin: "0px",
+      threshold: 1.0,
+    };
+    const callback = (entries, observer) => {
+      if (entries[0].isIntersecting && this.dinamicPage < this.totalPage) {
+        this.loadMorePosts();
+      }
+    };
+    const observer = new IntersectionObserver(callback, options);
+    observer.observe(this.$refs.observer);
   },
 };
 </script>
@@ -189,6 +239,21 @@ export default {
   padding: 30px;
   display: flex;
   flex-direction: column;
+  align-items: center;
+}
+.observer {
+  margin-top: 20px;
+  height: 30px;
+  background: teal;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  opacity: 0;
+}
+
+.post-limits {
+  justify-content: flex-start;
   align-items: center;
 }
 </style>

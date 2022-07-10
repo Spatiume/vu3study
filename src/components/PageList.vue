@@ -4,8 +4,9 @@
     type="button",
     v-for="pageNumber in totalPage",
     :key="pageNumber",
-    @click="this.$emit('changePage', pageNumber)",
+    @click="changeCurrentPage(pageNumber)",
     :class="{ 'current-page': currentPage === pageNumber }"
+    :value="pageNumber"
   ) {{ pageNumber }}
 </template>
 <script>
@@ -18,6 +19,12 @@ export default {
       type: Number,
     },
   },
+  methods:{
+    changeCurrentPage(pageNumber){
+      this.$emit('update:currentPage', pageNumber)
+    }
+    
+  }
 };
 </script>
 <style lang="scss">
