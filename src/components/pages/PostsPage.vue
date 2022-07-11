@@ -31,7 +31,7 @@
     v-show="paginationType == 'perpage'",
     :totalPage="totalPage",
     :currentPage="currentPage",
-    v-model:currentPage="currentPage"
+    v-model="currentPage"
   )
 </template>
 

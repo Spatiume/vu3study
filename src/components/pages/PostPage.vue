@@ -1,5 +1,6 @@
 <template lang="pug">
 .wrapper
+  MyButton.btn(@click="$router.go(-1)") Вернуться назад
   .post
     h1.post__title {{ post.title }}
     .post__pic
@@ -16,7 +17,7 @@ export default {
       post: {
         id: "",
       },
-      loremPhoto: '',
+      loremPhoto: "",
     };
   },
   methods: {
@@ -32,15 +33,22 @@ export default {
     },
   },
   mounted() {
-    this.post.id = this.$route.params.id;
-    this.loremPhoto = "https://picsum.photos/300/200"
+    this.post.id = Number(this.$route.params.id);
+    this.loremPhoto = `https://picsum.photos/id/${this.post.id+10}/400/250`;
     this.fetchPostById();
   },
 };
 </script>
-<style lang="scss" scoped>
-.wrapper {
-  padding: 10% 15%;
+  <style lang="scss" scoped>
+  .wrapper {
+  padding: 5% 15%;
+  display: flex;
+  flex-direction: column;
+}
+
+.btn {
+  margin-bottom: 20px;
+  align-self: flex-end;
 }
 
 .post {
@@ -63,7 +71,6 @@ export default {
   display: flex;
   flex-direction: column;
   padding: 2% 10%;
-
 
   .post__id {
     opacity: 0.8;

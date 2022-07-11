@@ -1,15 +1,15 @@
 <template lang="pug">
-.container
+.app-container.container
   NavBar
   router-view.content
   NavBar.footer
 </template>
 <script>
-import NavBar from "./components/NavBar.vue"
+import NavBar from "./components/NavBar.vue";
 export default {
-  components:{
-    NavBar
-  }
+  components: {
+    NavBar,
+  },
 };
 </script>
 <style lang="scss">
@@ -19,11 +19,17 @@ export default {
   box-sizing: border-box;
 }
 
+.app-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
 .content {
   padding: 20px;
+  flex: 1;
 }
 
-.footer{
+.footer {
   background: #003336;
 }
 </style>

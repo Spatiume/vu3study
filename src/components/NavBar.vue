@@ -3,13 +3,13 @@
   router-link.title(to="/") My vue3 study
   nav.list
     MyButton.btn(@click="$router.push('/posts')") Страница с постами
+    MyButton.btn(@click="$router.push('/store')") Страница с постами (store)
+
     MyButton.btn(@click="$router.push('/')") О сайте
 </template>
 <script>
-import MyButton from "./UI/MyButton.vue";
 export default {
   components: {
-    MyButton,
   },
 };
 </script>
@@ -35,6 +35,11 @@ export default {
     border-color: white;
     color: white;
     margin-left: 20px;
+
+    &:hover{
+      border-color: white;
+    }
   }
+
 }
 </style>
