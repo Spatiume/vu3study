@@ -12,7 +12,7 @@ export const postsModule = {
         { value: "body", name: "По описанию" },
         { value: "id", name: "По номеру" },
       ],
-      serchQuery: "",
+      searchQuery: "",
       postsLimitOnPage: 10,
       postsLimits: [
         { value: 5, name: "5" },
@@ -28,6 +28,11 @@ export const postsModule = {
       paginationTypeOptions: [
         { value: "dinamic", title: "Динамично" },
         { value: "perpage", title: "Постранично" },
+      ],
+      columnsShow: '1',
+      columnsShowOptions: [
+        { value: "1", title: "В одну колонику" },
+        { value: "2", title: "В две колонки" },
       ],
     }
   },
@@ -48,7 +53,7 @@ export const postsModule = {
     },
     sortedAndSearchedPosts(state, getters) {
       return getters.sortedPosts.filter((post) =>
-        post.title.toLowerCase().includes(state.serchQuery.toLowerCase())
+        post.title.toLowerCase().includes(state.searchQuery.toLowerCase())
       );
     },
 
@@ -75,11 +80,14 @@ export const postsModule = {
     setTotalPage(state, totalPage) {
       state.totalPage = totalPage;
     },
-    setSerchQuery(state, serchQuery) {
-      state.serchQuery = serchQuery;
+    setSearchQuery(state, searchQuery) {
+      state.searchQuery = searchQuery;
     },
     setPaginationType(state, paginationType) {
       state.paginationType = paginationType;
+    },
+    setColumnsShow(state, columnsShow) {
+      state.columnsShow = columnsShow;
     },
     createPost(state, post) {
       state.posts.unshift(post);

@@ -2,13 +2,14 @@
 .posts
   h4(v-if="posts.length > 0") Список постов
   h4(v-else, style="color: red") Список постов пуст
-  .posts__list
+  .posts__list(:class="{ intwocolumns: columnsShow == '2' }")
     transition-group(name="posts-list")
       PostItem(
         v-for="post in posts",
         :key="post.id",
         :post="post",
-        @remove="$emit('remove', post)"
+        @remove="$emit('remove', post)",
+        :columnsShow="columnsShow"
       )
 </template>
 
@@ -22,6 +23,10 @@ export default {
     posts: {
       type: Array,
       required: true,
+    },
+    columnsShow: {
+      type: [String, Number],
+      default: "1",
     },
   },
 };
@@ -47,5 +52,12 @@ export default {
 
 .posts-list-move {
   transition: transform 0.5s ease;
+}
+
+.intwocolumns {
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  margin-left: -2%;
 }
 </style>

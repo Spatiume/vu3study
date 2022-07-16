@@ -3,8 +3,8 @@
   h1 Страница с постами {{ currentPage }}
   MyInput.input__search(
     placeholder="Поиск...",
-    :model-value="serchQuery",
-    @update:model-value="setSerchQuery"
+    :model-value="searchQuery",
+    @update:model-value="setSearchQuery"
   )
   .app__btns
     MyButton.create-btn(@click="showDialog") Создать пост
@@ -15,24 +15,37 @@
         :modelValue="selectedSort",
         :options="sortOptions"
       )
-  .app__btns.post-limits
-    MyRadio(
-      :options="paginationTypeOptions",
-      :radioName="paginationType",
-      :radioDefault="paginationType",
-      :model-value="paginationType",
-      @update:model-value="setPaginationType"
-    ) Показывать:
-    .app__sort(v-show="paginationType == 'perpage'")
-      .sort__title Кол-во постов на странице:
-      MySelect(
-        :model-value="postsLimitOnPage",
-        @update:model-value.number="setPostsLimitOnPage",
-        :options="postsLimits"
+  .app__btns
+    .post-limits
+      MyRadio(
+        :options="paginationTypeOptions",
+        :radioName="paginationType",
+        :radioDefault="paginationType",
+        :model-value="paginationType",
+        @update:model-value="setPaginationType"
+      ) Показывать:
+      .app__sort(v-show="paginationType == 'perpage'")
+        .sort__title Кол-во постов на странице:
+        MySelect(
+          :model-value="postsLimitOnPage",
+          @update:model-value.number="setPostsLimitOnPage",
+          :options="postsLimits"
+        )
+    .columns__show
+      MyRadio(
+        :options="columnsShowOptions",
+        :radioName="columnsShow",
+        :radioDefault="columnsShow",
+        :model-value="columnsShow",
+        @update:model-value="setColumnsShow"
       )
   MyDialog(v-model:show="dialogVisible")
     PostForm(@create="createNewPost")
-  PostList(:posts="sortedAndSearchedPosts", @remove="removeCurrentPost")
+  PostList(
+    :posts="sortedAndSearchedPosts",
+    @remove="removeCurrentPost",
+    :columnsShow="columnsShow"
+  )
   .posts__loading(v-if="isPostsLoading")
     h4 Идёт загрузка...
     MyLoading
@@ -72,7 +85,7 @@ export default {
       isPostsLoading: (state) => state.posts.isPostsLoading,
       selectedSort: (state) => state.posts.selectedSort,
       sortOptions: (state) => state.posts.sortOptions,
-      serchQuery: (state) => state.posts.serchQuery,
+      searchQuery: (state) => state.posts.searchQuery,
       postsLimitOnPage: (state) => state.posts.postsLimitOnPage,
       postsLimits: (state) => state.posts.postsLimits,
       currentPage: (state) => state.posts.currentPage,
@@ -80,6 +93,8 @@ export default {
       dinamicPage: (state) => state.posts.dinamicPage,
       paginationType: (state) => state.posts.paginationType,
       paginationTypeOptions: (state) => state.posts.paginationTypeOptions,
+      columnsShowOptions: (state) => state.posts.columnsShowOptions,
+      columnsShow: (state) => state.posts.columnsShow,
     }),
     ...mapGetters({
       sortedPosts: "posts/sortedPosts",
@@ -89,10 +104,11 @@ export default {
   methods: {
     ...mapMutations({
       setCurrentPage: "posts/setCurrentPage",
-      setSerchQuery: "posts/setSerchQuery",
+      setSearchQuery: "posts/setSearchQuery",
       setPaginationType: "posts/setPaginationType",
       setPostsLimitOnPage: "posts/setPostsLimitOnPage",
       setSelectedSort: "posts/setSelectedSort",
+      setColumnsShow: "posts/setColumnsShow",
       createPost: "posts/createPost",
       removePost: "posts/removePost",
     }),
@@ -107,7 +123,9 @@ export default {
       this.dialogVisible = false;
     },
     removeCurrentPost(post) {
-      this.fetchNextPost();
+      if (this.currentPage < this.totalPage) {
+        this.fetchNextPost();
+      }
       this.removePost(post);
     },
 
@@ -131,7 +149,7 @@ export default {
 };
 </script>
 
-<style lang="scss">
+<style lang="scss" scoped>
 .app__btns {
   margin: 10px 0;
   display: flex;
@@ -174,5 +192,9 @@ export default {
   align-items: flex-start;
   flex-direction: column;
   justify-content: flex-start;
+}
+
+.columns__show {
+  display: block;
 }
 </style>

@@ -4,13 +4,13 @@
   nav.list
     MyButton.btn(@click="$router.push('/posts')") Страница с постами
     MyButton.btn(@click="$router.push('/store')") Страница с постами (store)
+    MyButton.btn(@click="$router.push('/composition')") Страница с постами (Composition api)
 
     MyButton.btn(@click="$router.push('/')") О сайте
 </template>
 <script>
 export default {
-  components: {
-  },
+  components: {},
 };
 </script>
 <style lang="scss">
@@ -36,10 +36,9 @@ export default {
     color: white;
     margin-left: 20px;
 
-    &:hover{
+    &:hover {
       border-color: white;
     }
   }
-
 }
 </style>

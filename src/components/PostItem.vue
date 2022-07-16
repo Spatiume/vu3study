@@ -1,5 +1,5 @@
 <template lang="pug">
-.post
+.post(:class="{ 'in-one-line': columnsShow != '1' }")
   .post__content
     div
       strong Номер поста:
@@ -20,6 +20,10 @@ export default {
     post: {
       type: Object,
       required: true,
+    },
+    columnsShow: {
+      type: [String, Number],
+      default: 1,
     },
   },
 };
@@ -51,6 +55,21 @@ export default {
 
   &:hover {
     padding: 4px;
+  }
+}
+
+.in-one-line {
+  width: 48%;
+  margin-left: 2%;
+  flex-direction: column;
+
+  .post__btns {
+    flex-direction: row;
+    width: 100%;
+    margin-top: 10px;
+  }
+  .post__content {
+    width: 100%;
   }
 }
 </style>

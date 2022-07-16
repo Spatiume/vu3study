@@ -1,6 +1,5 @@
 <template lang="pug">
 .posts-page
-  h1 Страница с постами
   MyInput.input__search(placeholder="Поиск...", v-model="searchQuery")
   .app__btns
     MyButton.create-btn(@click="showDialog") Создать пост
@@ -8,17 +7,8 @@
       .sort__title Сортировать по:
       MySelect(v-model="selectedSort", :options="sortOptions")
   .app__btns
-    .post-limits
-      MyRadio(
-        :options="paginationTypeOptions",
-        :radioName="paginationType",
-        :radioDefault="paginationType",
-        v-model="paginationType"
-      ) Показывать:
-      .app__sort(v-show="paginationType == 'perpage'")
-        .sort__title Кол-во постов на странице:
-        MySelect(v-model.number="postsLimitOnPage", :options="postsLimits")
     .columns__show
+      div Показывать:
       MyRadio(
         :options="columnsShowOptions",
         :radioName="columnsShow",
@@ -27,6 +17,7 @@
       )
   MyDialog(v-model:show="dialogVisible")
     PostForm(@create="createPost")
+
   PostList(
     :posts="sortedAndSearchedPosts",
     @remove="removePost",
@@ -36,22 +27,22 @@
     h4 Идёт загрузка...
     MyLoading
   .observer(
-    v-intersection="(loadMorePosts), this.dinamicPage",
+    v-intersection="(loadMorePosts)",
     v-show="!isPostsLoading && paginationType == 'dinamic'"
   ) Мы загрузили всё что могли...
-  PageList(
-    v-show="paginationType == 'perpage'",
-    :totalPage="totalPage",
-    :currentPage="currentPage",
-    v-model="currentPage"
-  )
 </template>
 
 <script>
-import PostForm from "./../PostForm.vue";
-import PostList from "./../PostList.vue";
-import PageList from "./../PageList.vue";
+import PostForm from "../PostForm.vue";
+import PostList from "../PostList.vue";
+import PageList from "../PageList.vue";
 import axios from "axios";
+import { ref } from "vue";
+
+//hooks
+import usePosts from "./../../hooks/usePosts";
+import useSortedPosts from "./../../hooks/useSortedPosts";
+import useSortedAndSearchedPosts from "./../../hooks/useSortedAndSearchedPosts";
 
 export default {
   components: {
@@ -61,15 +52,7 @@ export default {
   },
   data() {
     return {
-      posts: [
-        { id: 1, title: "Javascript", body: "Описание поста" },
-        { id: 2, title: "Javascript 2", body: "Описание поста 2" },
-        { id: 3, title: "Javascript 3", body: "Описание поста 3" },
-        { id: 4, title: "Javascript 3", body: "Описание поста 4" },
-      ],
       dialogVisible: false,
-      isPostsLoading: true,
-      selectedSort: "",
       columnsShow: "1",
       columnsShowOptions: [
         { value: "1", title: "В одну колонику" },
@@ -80,7 +63,6 @@ export default {
         { value: "body", name: "По описанию" },
         { value: "id", name: "По номеру" },
       ],
-      searchQuery: "",
       postsLimitOnPage: 10,
       postsLimits: [
         { value: 5, name: "5" },
@@ -89,8 +71,7 @@ export default {
         { value: 20, name: "20" },
         { value: 50, name: "50" },
       ],
-      currentPage: 1,
-      totalPage: 0,
+      totalPage: 10,
       dinamicPage: 1,
       paginationType: "dinamic",
       paginationTypeOptions: [
@@ -99,34 +80,14 @@ export default {
       ],
     };
   },
-  computed: {
-    sortedPosts() {
-      if (this.selectedSort === "id") {
-        // сортировка для чисел
-        return [...this.posts].sort((post1, post2) => {
-          return post1[this.selectedSort] - post2[this.selectedSort];
-        });
-      }
-      // сортировка для строк
-      return [...this.posts].sort((post1, post2) => {
-        return post1[this.selectedSort]?.localeCompare(
-          post2[this.selectedSort]
-        );
-      });
-    },
-    sortedAndSearchedPosts() {
-      return this.sortedPosts.filter((post) =>
-        post.title.toLowerCase().includes(this.searchQuery.toLowerCase())
-      );
-    },
-  },
+  computed: {},
   methods: {
     createPost(post) {
       this.posts.unshift(post);
       this.dialogVisible = false;
     },
     removePost(currentPost) {
-      if (this.currentPage < this.totalPage) {
+      if (this.dinamicPage < this.totalPage) {
         this.fetchNextPost();
       }
       this.posts = this.posts.filter((post) => post.id !== currentPost.id);
@@ -135,11 +96,7 @@ export default {
       this.dialogVisible = true;
     },
     async fetchNextPost() {
-      if (this.dinamicPage >= this.totalPage) return;
       const nextPost = this.posts[this.posts.length - 1].id + 1;
-      const maxPost = this.totalPage * this.postsLimitOnPage;
-      if (nextPost >= maxPost) return;
-      console.log(nextPost);
       try {
         const { data } = await axios.get(
           `https://jsonplaceholder.typicode.com/posts/${nextPost}`
@@ -147,29 +104,6 @@ export default {
         this.posts.push(data);
       } catch (error) {
         alert("Ошибка");
-      }
-    },
-    async fetchPosts() {
-      try {
-        this.isPostsLoading = true;
-        const response = await axios.get(
-          "https://jsonplaceholder.typicode.com/posts",
-          {
-            params: {
-              _page: this.currentPage,
-              _limit: this.postsLimitOnPage,
-            },
-          }
-        );
-        this.totalPage = Math.ceil(
-          response.headers["x-total-count"] / this.postsLimitOnPage
-        );
-        this.posts = response.data;
-        this.dinamicPage = this.currentPage;
-      } catch (error) {
-        alert("Ошибка");
-      } finally {
-        this.isPostsLoading = false;
       }
     },
     async loadMorePosts() {
@@ -197,19 +131,23 @@ export default {
       }
     },
   },
-  watch: {
-    postsLimitOnPage() {
-      this.currentPage = 1;
-      this.fetchPosts();
-    },
-    currentPage() {
-      this.fetchPosts();
-    },
-  },
-  mounted() {
-    this.fetchPosts();
+  watch: {},
+  mounted() {},
+  setup(props) {
+    const { posts, totalPage, isPostsLoading } = usePosts(10);
+    const { selectedSort, sortedPosts } = useSortedPosts(posts);
+    const { searchQuery, sortedAndSearchedPosts } =
+      useSortedAndSearchedPosts(sortedPosts);
 
-    // console.log(this.$refs.observer);
+    return {
+      posts,
+      totalPage,
+      isPostsLoading,
+      selectedSort,
+      sortedPosts,
+      searchQuery,
+      sortedAndSearchedPosts,
+    };
   },
 };
 </script>
@@ -260,6 +198,7 @@ export default {
 }
 
 .columns__show {
-  display: block;
+  display: flex;
+  align-items: center;
 }
 </style>
